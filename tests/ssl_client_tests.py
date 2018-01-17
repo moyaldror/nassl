@@ -6,7 +6,7 @@ import unittest
 import socket
 import tempfile
 
-from nassl import _nassl
+from nassl._nassl import OpenSSLError
 from nassl.legacy_ssl_client import LegacySslClient
 from nassl.ssl_client import ClientCertificateRequested, OpenSslVersionEnum, OpenSslVerifyEnum, OpenSslFileTypeEnum, \
     SslClient
@@ -216,7 +216,7 @@ class ModernSslClientOnlineTls13Tests(unittest.TestCase):
         sock.connect(('tls13.crypto.mozilla.org', 443))
         ssl_client = SslClient(ssl_version=OpenSslVersionEnum.TLSV1_3, underlying_socket=sock,
                                ssl_verify=OpenSslVerifyEnum.NONE)
-
+        self.assertTrue(ssl_client)
 
 class ModernSslClientOnlineEarlyDataTests(unittest.TestCase):
 
@@ -248,7 +248,7 @@ class ModernSslClientOnlineEarlyDataTests(unittest.TestCase):
         self.assertFalse(self.ssl_client.is_handshake_completed())
 
     def test_write_early_data_fail_when_used_on_non_reused_session(self):
-        self.assertRaisesRegexp(_nassl.OpenSSLError, 
+        self.assertRaisesRegexp(OpenSSLError, 
                                 'function you should not call',
                                 self.ssl_client.write_early_data,
                                 self._DATA_TO_SEND)
@@ -264,7 +264,7 @@ class ModernSslClientOnlineEarlyDataTests(unittest.TestCase):
         self.tearDown()
         self.setUp()
         self.ssl_client.set_session(sess)
-        self.assertRaisesRegexp(_nassl.OpenSSLError, 
+        self.assertRaisesRegexp(OpenSSLError, 
                                 'too much early data',
                                 self.ssl_client.write_early_data,
                                 str_to_send.format('*' * max_early))
@@ -275,3 +275,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
